@@ -20,13 +20,21 @@
 
     <!-- Підключення локального скрипта -->
     <main class="container">
-      <h1>Погода</h1>
-      <form id="weather-form" class="weather-form">
-        <input id="city-input" type="text" placeholder="Введи місто (наприклад Kyiv)" required />
-        <button type="submit">Показати погоду</button>
-      </form>
-
-      <div id="weather-output" class="weather-output"></div>
+      <h1 class="weather-title">Погода</h1>
+      <div class="weather-row">
+        <form id="weather-form" class="weather-form">
+          <input id="city-input" type="text" placeholder="Введи місто (наприклад Kyiv)" required />
+          <button class="weather-button" type="submit">Показати погоду</button>
+        </form>
+      </div>
+      <div class="weather-date">
+        <input id="date-input" type="date" disabled />
+        <button id="date-button" class="weather-button" type="button" disabled>Показати за дату</button>
+      </div>
+      <div class="weather-output-panel">
+        <video class="weather-bg-video" autoplay loop muted playsinline src="images/bg_gif.mp4"></video>
+        <div id="weather-output" class="weather-output"></div>
+      </div>
     </main>
 
     <script src="script.js"></script>
