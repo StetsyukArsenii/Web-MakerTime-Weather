@@ -4,9 +4,22 @@ const MAX_FORECAST_DAYS = 14;
 const form = document.getElementById('weather-form');
 const input = document.getElementById('city-input');
 const dateInput = document.getElementById('date-input');
-const dateButton = document.getElementById('date-button');
 const out = document.getElementById('weather-output');
 const weatherVideo = document.querySelector('.weather-bg-video');
+const STORAGE_KEY = 'weatherLastCity';
+
+function saveLastCity(city) {
+	localStorage.setItem(STORAGE_KEY, city);
+}
+
+function loadLastCity() {
+	const saved = localStorage.getItem(STORAGE_KEY);
+	if (saved) {
+		input.value = saved;
+		return saved;
+	}
+	return null;
+}
 
 let forecastData = null;
 let availableDates = [];
@@ -42,6 +55,9 @@ function renderWeatherCard(location, dayData) {
 
 function renderError(message) {
 	out.innerHTML = `<div class="weather-error">${message}</div>`;
+	if (weatherVideo) {
+		weatherVideo.style.display = 'none';
+	}
 }
 
 function applyWeatherTheme(conditionText) {
@@ -158,7 +174,6 @@ function matchesLocation(query, location) {
 function enableDatePicker() {
 	if (availableDates.length === 0) return;
 	dateInput.disabled = false;
-	dateButton.disabled = false;
 	dateInput.min = availableDates[0];
 	dateInput.max = availableDates[availableDates.length - 1];
 	dateInput.value = availableDates[0];
@@ -169,7 +184,6 @@ function renderSelectedDate() {
 		renderError('Спочатку знайдіть місто.');
 		return;
 	}
-
 	const selectedDate = dateInput.value;
 	const forecastDay = forecastData.forecast.forecastday.find((day) => day.date === selectedDate);
 
@@ -228,6 +242,7 @@ async function fetchForecast(q) {
 		availableDates = data.forecast.forecastday.map((day) => day.date);
 		enableDatePicker();
 		renderSelectedDate();
+		saveLastCity(q);
 	} catch (err) {
 		console.error('Fetch error:', err);
 		renderError('Fetch error');
@@ -242,9 +257,19 @@ form.addEventListener('submit', (e) => {
 	fetchForecast(q);
 });
 
-dateButton.addEventListener('click', () => {
+dateInput.addEventListener('change', () => {
 	renderSelectedDate();
 });
+
+function init() {
+	const lastCity = loadLastCity();
+	if (lastCity) {
+		out.textContent = 'Завантажую останнє місто...';
+		fetchForecast(lastCity);
+	}
+}
+
+window.addEventListener('load', init);
 
 if ('serviceWorker' in navigator) {
 	navigator.serviceWorker.register('sw.js').then((registration) => {
